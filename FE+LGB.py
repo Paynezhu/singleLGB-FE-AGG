@@ -1,6 +1,5 @@
 '''author:payne
 target:KAGGLE Elo Merchant Category
-score: 3.694 top35%
 '''
 
 
@@ -142,7 +141,7 @@ def train_test(num_rows=None):
     df['elapsed_time'] = (datetime.datetime.today() - df['first_active_month']).dt.days
 
 
-# 这几组特征存疑
+
     '''
     df['days_feature1'] = df['elapsed_time'] * df['feature_1']
     df['days_feature2'] = df['elapsed_time'] * df['feature_2']
@@ -550,10 +549,6 @@ def kfold_lightgbm(train_df, test_df, num_folds, stratified=False, debug=False):
 
 
 
-        '''
-        核心问题：使用的是平均预测值，而有些split的效果没有那么好。
-        '''
-
         sub_preds += reg.predict(test_df[feats], num_iteration=reg.best_iteration) / folds.n_splits
 
 
@@ -581,8 +576,6 @@ def kfold_lightgbm(train_df, test_df, num_folds, stratified=False, debug=False):
     # display_importances(feature_importance_df)
     print('CV_mean RMSE is: %.6f ' % np.mean(a))
 
-
-    # 选取a的最小值
 
     #min_index = a.index(min(a))
     #print('min index is %2d' % min_index)
@@ -629,26 +622,3 @@ if __name__ == "__main__":
         main(debug=False)
 
 
-'''
- 关键问题：
- 数据角度：处理outlier 和 构造更好特征
- 
- 1. LB中也有outlier，单纯的将outlier提出来训练模型会导致精度的进一步变差。除非能训练一个分类器找出outlier所在的id，然后用两个模型去预测该值。
- 
- 识别出test中的outlier，并将其和non-outlier的数据分开预测。
- 
- 关键是构建一个分类器找出train里面的outlier，分开后，使用无outlier的数据训练模型会更加精确。
- 
- 2. 更好特征应对照特征importance表思考
- 
- 模型角度：参数处理 和 构造blending模型
- 1: CV :3.648856  LB：3.694  2月16日
- 2: CV :3.649071  调整的是树的深度和叶子的个数。
- 3. CV :3.648027  LB: 3.695 
- 
- 3.662016  3.716
- 
- categorical feature比较重要
- 
- 更改日志：加入categorical特征的var,更改了些许hist中的特征，并且更改fold个数
-'''
